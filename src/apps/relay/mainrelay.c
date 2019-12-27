@@ -35,6 +35,9 @@
 #include "prom_server.h"
 #endif
 
+#if !defined(TURN_NO_REST)
+#include "dbdrivers/dbd_rest.h"
+#endif
 
 #if (defined LIBRESSL_VERSION_NUMBER && OPENSSL_VERSION_NUMBER == 0x20000000L)
 #undef OPENSSL_VERSION_NUMBER
@@ -169,6 +172,8 @@ DEFAULT_CPUS_NUMBER,
 0,  /* no_auth_pings */
 0,  /* no_dynamic_ip_list */
 0   /* no_dynamic_realms */
+"", /* rest_client_content_type */
+0, /*use_remote_auth_api*/
 };
 
 //////////////// OpenSSL Init //////////////////////
@@ -538,7 +543,15 @@ static char Usage[] = "Usage: turnserver [options]\n"
 #endif
 #if !defined(TURN_NO_PROMETHEUS)
 " --prometheus					Enable prometheus metrics. It is disabled by default. If it is enabled it will listen on port 9641 unther the path /metrics\n"
-"						also the path / on this port can be used as a health check\n"
+"					also the path / on this port can be used as a health check\n"
+#endif
+#if !defined(TURN_NO_REST)
+" --rest-userdb				<connection-string>	REST server connection string that will be used as callback for 3d party REST server\n"
+"						must contain <http(s)://URL/postfix> that configured on 3d patry service\n"
+" --rest-content-type			[json|xml|urlencoded]	(!!!ONLY json supported for now!!!) Type of the response body\n"
+" 						that will be sent from 3d party REST server and must be parsed by coturn\n"
+" --use-remote-auth-api 				Flag that says that server have to use 3-d party server to get secrets\n" 
+"						(!!! Do not use is together with --use-auth-secret	and --static-auth-secret keys)\n"
 #endif
 " --use-auth-secret				TURN REST API flag.\n"
 "						Flag that sets a special authorization option that is based upon authentication secret\n"
@@ -813,7 +826,8 @@ enum EXTRA_OPTS {
 	NO_SOFTWARE_ATTRIBUTE_OPT,
 	NO_HTTP_OPT,
 	SECRET_KEY_OPT,
-	ACME_REDIRECT_OPT
+	ACME_REDIRECT_OPT,
+	REMOTE_AUTH_API
 };
 
 struct myoption {
@@ -866,6 +880,11 @@ static const struct myoption long_options[] = {
 #endif
 #if !defined(TURN_NO_PROMETHEUS)
 				{ "prometheus", optional_argument, NULL, PROMETHEUS_OPT },
+#endif
+#if !defined(TURN_NO_REST)
+				{ "rest-userdb", required_argument, NULL, 'W' },
+				{ "rest-content-type", required_argument, NULL, 'w' },
+				{ "use-remote-auth-api", optional_argument, NULL, REMOTE_AUTH_API },
 #endif
 				{ "use-auth-secret", optional_argument, NULL, AUTH_SECRET_OPT },
 				{ "static-auth-secret", required_argument, NULL, STATIC_AUTH_SECRET_VAL_OPT },
@@ -1473,6 +1492,18 @@ static void set_option(int c, char *value)
 #if !defined(TURN_NO_PROMETHEUS)
 	case PROMETHEUS_OPT:
 		turn_params.prometheus = 1;
+#endif
+#if !defined(TURN_NO_REST)
+	case 'W':
+		STRCPY(turn_params.default_users_db.persistent_users_db.userdb, value);
+		turn_params.default_users_db.userdb_type = TURN_USERDB_TYPE_REST;
+		break;
+	case 'w':
+		STRCPY(turn_params.rest_client_content_type,value);
+		break;
+	case REMOTE_AUTH_API:
+		turn_params.use_remote_auth_api = 1;
+		turn_params.oauth = 0;
 		break;
 #endif
 	case AUTH_SECRET_OPT:
@@ -2082,6 +2113,12 @@ static void print_features(unsigned long mfn)
 	TURN_LOG_FUNC(TURN_LOG_LEVEL_INFO, "Redis is not supported\n");
 #endif
 
+#if !defined(TURN_NO_REST)
+	TURN_LOG_FUNC(TURN_LOG_LEVEL_INFO, "REST-client supported\n");
+#else
+	TURN_LOG_FUNC(TURN_LOG_LEVEL_INFO, "REST-client is not supported\n");
+#endif
+
 #if !defined(TURN_NO_PQ)
 	TURN_LOG_FUNC(TURN_LOG_LEVEL_INFO, "PostgreSQL supported\n");
 #else
@@ -2175,6 +2212,17 @@ static void init_domain(void)
 #endif
 }
 
+static void check_rest_api_setup(void) {
+	if (turn_params.use_remote_auth_api == 1 && turn_params.default_users_db.userdb_type != TURN_USERDB_TYPE_REST) {
+		turn_params.use_remote_auth_api = 0;
+		TURN_LOG_FUNC(TURN_LOG_LEVEL_WARNING, "\nCONFIGURATION ALERT: Remote authentication availible only with --rest-userdb option for now. Switching --use-remote-auth-api option off\n");
+	}
+
+	if (turn_params.use_remote_auth_api == 0 && turn_params.default_users_db.userdb_type == TURN_USERDB_TYPE_REST) {
+		TURN_LOG_FUNC(TURN_LOG_LEVEL_ERROR, "\nCONFIG ERROR:  I can not use --rest-userdb  without --use-remote-auth-api. --rest-userdb implemented only for that purpose for now\n");
+	}
+}
+
 int main(int argc, char **argv)
 {
 	int c = 0;
@@ -2187,6 +2235,9 @@ int main(int argc, char **argv)
 
 #if !defined(TURN_NO_HIREDIS)
 	redis_async_init();
+#endif
+#if !defined(TURN_NO_REST)
+	rest_client_global_init();
 #endif
 
 	init_domain();
@@ -2381,6 +2432,8 @@ int main(int argc, char **argv)
 		}
 	}
 
+	check_rest_api_setup();
+
 	openssl_setup();
 
 	int local_listeners = 0;
@@ -2524,6 +2577,10 @@ int main(int argc, char **argv)
 	run_listener_server(&(turn_params.listener));
 
 	disconnect_database();
+
+#if !defined(TURN_NO_REST)
+	rest_client_global_shutdown();
+#endif
 
 	return 0;
 }

@@ -1,0 +1,14 @@
+FROM debian:stretch-slim
+RUN apt-get update
+RUN apt-get install -y wget
+
+RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y \
+    emacs-nox \
+    build-essential \
+    libssl-dev sqlite3 \
+    libsqlite3-dev \
+    libevent-dev \
+    gcc \
+    libboost-dev \
+    libcurl4-openssl-dev \
+    libjson-c-dev \

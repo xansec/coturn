@@ -333,6 +333,10 @@ typedef struct _turn_params_ {
   int no_dynamic_ip_list;
   int no_dynamic_realms;
 
+  ///////// REST //////////
+  char rest_client_content_type[64];
+  int use_remote_auth_api;
+
 } turn_params_t;
 
 extern turn_params_t turn_params;
