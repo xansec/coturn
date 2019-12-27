@@ -6,11 +6,11 @@ ENV BUILD_PREFIX /usr/local/src
 # Install build dependencies
 RUN export DEBIAN_FRONTEND=noninteractive && \
 	apt-get update && \
-	apt-get install -y build-essential git debhelper dpkg-dev libssl-dev libevent-dev sqlite3 libsqlite3-dev postgresql-client libpq-dev default-mysql-client default-libmysqlclient-dev libhiredis-dev libmongoc-dev libbson-devs
+	apt-get install -y build-essential git debhelper dpkg-dev libssl-dev libevent-dev sqlite3 libsqlite3-dev postgresql-client libpq-dev default-mysql-client default-libmysqlclient-dev libhiredis-dev libmongoc-dev libbson-dev libcurl4-openssl-dev libjson-c-dev
 
 # Clone Coturn
 WORKDIR ${BUILD_PREFIX}
-RUN git clone -b https://github.com/coturn/coturn.git
+RUN git clone https://github.com/coturn/coturn.git
 
 # Build Coturn
 WORKDIR ${BUILD_PREFIX}/coturn
@@ -49,8 +49,14 @@ RUN apt-get update && \
   apt-get update && \
   apt-get install -y libcurl3 mongodb-org mongodb-org-server mongodb-org
 
-#Install kamailiodb extension deps
-RUN apt-get install libcurl4-openssl-dev libjson-c-dev
+# Install MongoDB
+RUN apt-get update && \
+  apt-get install -y wget gnupg && \
+  wget -qO - https://www.mongodb.org/static/pgp/server-4.0.asc | apt-key add - && \
+  echo "deb http://repo.mongodb.org/apt/debian stretch/mongodb-org/4.0 main" | tee /etc/apt/sources.list.d/mongodb-org-4.0.list && \
+  echo "deb http://deb.debian.org/debian/ stretch main" | tee /etc/apt/sources.list.d/debian-stretch.list && \
+  apt-get update && \
+  apt-get install -y libcurl3 mongodb-org mongodb-org-server mongodb-org
 
 RUN if ! getent group "$TURNSERVER_GROUP" >/dev/null; then \
         addgroup --system "$TURNSERVER_GROUP" || exit 1 ;\
