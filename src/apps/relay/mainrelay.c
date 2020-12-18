@@ -171,9 +171,9 @@ DEFAULT_CPUS_NUMBER,
 0,  /* keep_address_family */
 0,  /* no_auth_pings */
 0,  /* no_dynamic_ip_list */
-0   /* no_dynamic_realms */
+0,   /* no_dynamic_realms */
 "", /* rest_client_content_type */
-0, /*use_remote_auth_api*/
+0 /*use_remote_auth_api*/
 };
 
 //////////////// OpenSSL Init //////////////////////
