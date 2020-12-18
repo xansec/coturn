@@ -2,18 +2,6 @@
 
 # Proprietary configure script of Coturn project
 
-prepare() {
-	#clean and ini JSON_PATH
-	# rm -rf /usr/local/include/json-c/*
-	# rm -rf /usr/local/include/json-c
-	JSON_LINK_PATH=""
-	JSON_PATH=/usr/local/include/json-c
-	if [ ! -d ${JSON_PATH} ]; then
-		${ECHO_CMD} "${JSON_PATH}  does not exists. Creating it"
-		JSON_LINK_PATH="ln -s /usr/include/json-c  /usr/local/include"
-	fi
-}
-
 cleanup() {
 	rm -rf ${TMPCPROGC}
 	rm -rf ${TMPCPROGB}
@@ -38,7 +26,6 @@ cleanup() {
 	rm -rf ${REST_TMPCPROGC}
 	rm -rf ${REST_TMPCPROGB}
 	rm -rf ${TMPCADDRPROGO}
-	prepare
 }
 
 testlibraw() {

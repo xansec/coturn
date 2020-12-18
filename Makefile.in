@@ -79,7 +79,6 @@ bin/turnserver:	${SERVERAPP_DEPS}
 	${MKBUILDDIR} bin
 	${RMCMD} bin/turnadmin
 	${JSON_LINK_PATH}
-	ls -l /usr/local/include/json-c/*
 	${CC} ${CPPFLAGS} ${CFLAGS}  ${DBCFLAGS} ${IMPL_MODS} -Ilib ${SERVERAPP_MODS} ${COMMON_MODS} ${SERVERTURN_MODS} -o $@ ${DBLIBS} ${LDFLAGS}
 	cd bin; ln -s turnserver turnadmin
 
