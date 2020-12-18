@@ -49,15 +49,6 @@ RUN apt-get update && \
   apt-get update && \
   apt-get install -y libcurl3 mongodb-org mongodb-org-server mongodb-org
 
-# Install MongoDB
-RUN apt-get update && \
-  apt-get install -y wget gnupg && \
-  wget -qO - https://www.mongodb.org/static/pgp/server-4.0.asc | apt-key add - && \
-  echo "deb http://repo.mongodb.org/apt/debian stretch/mongodb-org/4.0 main" | tee /etc/apt/sources.list.d/mongodb-org-4.0.list && \
-  echo "deb http://deb.debian.org/debian/ stretch main" | tee /etc/apt/sources.list.d/debian-stretch.list && \
-  apt-get update && \
-  apt-get install -y libcurl3 mongodb-org mongodb-org-server mongodb-org
-
 RUN if ! getent group "$TURNSERVER_GROUP" >/dev/null; then \
         addgroup --system "$TURNSERVER_GROUP" || exit 1 ;\
     fi \
