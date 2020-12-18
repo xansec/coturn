@@ -10,7 +10,7 @@ prepare() {
 	JSON_PATH=/usr/local/include/json-c
 	if [ ! -d ${JSON_PATH} ]; then
 		${ECHO_CMD} "${JSON_PATH}  does not exists. Creating it"
-    	JSON_LINK_PATH="ln -s /usr/include/json-c  /usr/local/include"
+		JSON_LINK_PATH="ln -s /usr/include/json-c  /usr/local/include"
 	fi
 }
 
@@ -109,7 +109,7 @@ testrest() {
 		REST_CFLAGS="-I${PREFIX}/curl/ -I${PREFIX}/json-c/ -I${PREFIX}/include/curl/ -I${PREFIX}/include/c-json/"
 		REST_CFLAGS="${REST_CFLAGS} -I/usr/include/curl/ -I/usr/include/c-json/ -I/usr/local/include/curl/ -I/usr/local/include/json-c/"
         REST_CFLAGS="${REST_CFLAGS} -I/usr/include/curl -I/usr/include/c-json -I/usr/local/include/curl -I/usr/local/include/json-c"
-		
+
 		for inc in ${INCLUDEDIR}/curl /usr/local/include/curl/ /usr/include/curl/ ${INCLUDEDIR}/json-c/ /usr/local/include/json-c/ /usr/include/json-c/
         do
             if [ -d ${inc} ] ; then
@@ -1282,9 +1282,9 @@ if [ -z "${TURN_NO_REST}" ] ; then
 
 	ER=$?
 	if ! [ ${ER} -eq 0 ] ; then
-  		${ECHO_CMD} "rest found."
+		${ECHO_CMD} "rest found."
 	else
-  		TURN_NO_REST="-DTURN_NO_REST"
+		TURN_NO_REST="-DTURN_NO_REST"
 	fi
 
 else

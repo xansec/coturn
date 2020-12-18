@@ -56,7 +56,7 @@ is equivalent to:
 turnserver - a TURN relay server implementation.
 
   SYNOPSIS
-  
+
 $ turnserver [-n | -c <config-file> ] [flags] [ --userdb=<userdb-file> | --psql-userdb=<db-conn-string> | --mysql-userdb=<db-conn-string>  | --mongo-userdb=<db-conn-string>  | --redis-userdb=<db-conn-string> ] | --http-backend-userdb=<rest-conn-string> [-z | --no-auth | -a | --lt-cred-mech ] [options]
 $ turnserver -h
 
@@ -153,7 +153,7 @@ User database settings:
 -W, --http-backend-userdb   HTTP server (usually REST) connection string that will be used as callback for 3d party HTTP server
                             must contain <http(s)://URL/postfix> that configured on 3d party service
 
-Flags:   
+Flags:
 
 -v, --verbose		Moderate verbose mode.
 

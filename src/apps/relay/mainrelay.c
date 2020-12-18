@@ -543,7 +543,7 @@ static char Usage[] = "Usage: turnserver [options]\n"
 #endif
 #if !defined(TURN_NO_PROMETHEUS)
 " --prometheus					Enable prometheus metrics. It is disabled by default. If it is enabled it will listen on port 9641 unther the path /metrics\n"
-"					also the path / on this port can be used as a health check\n"
+"						also the path / on this port can be used as a health check\n"
 #endif
 #if !defined(TURN_NO_REST)
 " --http-backend-userdb	<connection-string>	HTTP server connection string that will be used as callback for 3d party HTTP server\n"
@@ -1178,7 +1178,7 @@ static int get_bool_value(const char* s)
 
 static void set_option(int c, char *value)
 {
-  
+
   if(value && value[0]=='=') {
     TURN_LOG_FUNC(TURN_LOG_LEVEL_WARNING, "WARNING: option -%c is possibly used incorrectly. The short form of the option must be used as this: -%c <value>, no \'equals\' sign may be used, that sign is used only with long form options (like --user=<username>).\n",(char)c,(char)c);
   }
@@ -2448,7 +2448,7 @@ int main(int argc, char **argv)
 		exit(-1);
 		fprintf(stderr,"\n%s\n", Usage);
 	}
-	
+
 	openssl_setup();
 
 	int local_listeners = 0;
